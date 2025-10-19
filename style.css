@@ -1,0 +1,149 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  background: #f5f7fa;
+  color: #333;
+}
+
+/* Navbar */
+header {
+  background: #ffb703;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+header .logo {
+  font-weight: bold;
+  font-size: 18px;
+}
+header nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}
+header nav a:hover {
+  text-decoration: underline;
+}
+
+/* Cards */
+.card {
+  background: white;
+  margin: 20px auto;
+  padding: 20px;
+  width: 80%;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.card h2 {
+  margin-top: 0;
+  color: #1976d2;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+table, th, td {
+  border: 1px solid #ddd;
+}
+th {
+  background: #1976d2;
+  color: white;
+}
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+.note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+}
+
+/* Alerts Hub */
+.alert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+}
+.alert-item {
+  text-align: center;
+  padding: 20px;
+  background: #f1f1f1;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+.alert-item i {
+  font-size: 36px;
+  color: #e63946;
+}
+.alert-item:hover {
+  background: #ffe5d9;
+  transform: scale(1.05);
+}
+
+/* Form */
+form input, form textarea, form select, form button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+form button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+form button:hover {
+  background: #125a9c;
+}
+
+/* Toast notification styles */
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+  transition: all 0.5s ease-in-out;
+}
+
+#toast.show {
+  visibility: visible;
+  bottom: 50px;
+  opacity: 1;
+}
+
+/* Priority row highlights */
+.priority-critical {
+  background-color: #ffcccc; /* light red */
+  font-weight: bold;
+}
+.priority-high {
+  background-color: #ffe0b3; /* light orange */
+}
+.priority-medium {
+  background-color: #ffffb3; /* light yellow */
+}
+.priority-low {
+  background-color: #ccffcc; /* light green */
+}

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disaster Relief Resource Allocation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBD7STJUw09KqrNseccPO2m4I1PyxjTyKM&callback=initMap"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7fa; margin: 0; color: #333; }
+    header { background: #222; color: #fff; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+    nav a { color: #fff; margin: 0 10px; text-decoration: none; font-weight: bold; }
+    nav a:hover { text-decoration: underline; }
+    .card { background: #fff; margin: 20px; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #007bff; color: white; }
+    input, textarea, select, button { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #007bff; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .alert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; text-align: center; }
+    .alert-item { background: #f1f1f1; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.3s; }
+    .alert-item:hover { background: #d7ecff; transform: scale(1.05); }
+    .alert-item i { font-size: 28px; color: #e74c3c; margin-bottom: 8px; }
+    #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 8px; padding: 16px;
+      position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); transition: all 0.5s ease; z-index: 1000; }
+    #toast.show { visibility: visible; bottom: 50px; opacity: 1; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background: #fff; margin: 8% auto; padding: 20px; border-radius: 10px; width: 70%; }
+    .modal h2 { color: #007bff; margin-top: 0; }
+    .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: red; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">🌐 Disaster Relief System</div>
+    <nav>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#alerts">Alerts Hub</a>
+      <a href="#request">Request Help</a>
+      <a href="#lostfound">Lost & Found</a>
+    </nav>
+  </header>
+
+  <!-- Relief Dashboard -->
+  <section id="dashboard" class="card">
+    <h2>Relief Requests Dashboard</h2>
+    <table id="requestTable">
+      <tr><th>ID</th><th>Name</th><th>Location</th><th>Need</th><th>Priority</th><th>Status</th></tr>
+    </table>
+  </section>
+
+  <!-- Alerts -->
+  <section id="alerts" class="card">
+    <h2>Active Alerts Hub</h2>
+    <div class="alert-grid">
+      <div class="alert-item" onclick="openModal('Cyclone')"><i class="fa-solid fa-wind"></i><p>Cyclone</p></div>
+      <div class="alert-item" onclick="openModal('Rainfall')"><i class="fa-solid fa-cloud-showers-heavy"></i><p>Rainfall</p></div>
+      <div class="alert-item" onclick="openModal('Flood')"><i class="fa-solid fa-house-flood-water"></i><p>Flood</p></div>
+      <div class="alert-item" onclick="openModal('Earthquake')"><i class="fa-solid fa-city"></i><p>Earthquake</p></div>
+      <div class="alert-item" onclick="openModal('Tsunami')"><i class="fa-solid fa-water"></i><p>Tsunami</p></div>
+      <div class="alert-item" onclick="openModal('Landslide')"><i class="fa-solid fa-mountain"></i><p>Landslide</p></div>
+      <div class="alert-item" onclick="openModal('Wildfire')"><i class="fa-solid fa-fire"></i><p>Wildfire</p></div>
+      <div class="alert-item" onclick="openModal('Drought')"><i class="fa-solid fa-seedling"></i><p>Drought</p></div>
+    </div>
+  </section>
+
+  <!-- Google Map -->
+  <section class="card">
+    <h2>Disaster Map</h2>
+    <div id="map" style="height:400px;width:100%;"></div>
+  </section>
+
+  <!-- Help Request -->
+  <section id="request" class="card">
+    <h2>Submit Help Request</h2>
+    <form id="helpForm">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="text" id="location" placeholder="Location" required />
+      <textarea id="need" placeholder="Type of Need (Food, Medicine, Shelter...)" required></textarea>
+      <select id="priority" required>
+        <option value="" disabled selected>Select Priority</option>
+        <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <!-- Lost & Found -->
+  <section id="lostfound" class="card">
+    <h2>Lost & Found Hub</h2>
+    <table id="lfTable"><tr><th>ID</th><th>Type</th><th>Description</th><th>Location</th><th>Date</th><th>Contact</th><th>Status</th></tr></table>
+
+    <h3>Report Lost</h3>
+    <form id="lostForm">
+      <textarea id="lostDesc" placeholder="Description" required></textarea>
+      <input type="text" id="lostLoc" placeholder="Last Seen Location" required />
+      <input type="date" id="lostDate" required />
+      <input type="text" id="lostContact" placeholder="Contact Info" required />
+      <button type="submit">Submit Lost</button>
+    </form>
+
+    <h3>Report Found</h3>
+    <form id="foundForm">
+      <textarea id="foundDesc" placeholder="Description" required></textarea>
+      <input type="text" id="foundLoc" placeholder="Location Found" required />
+      <input type="date" id="foundDate" required />
+      <input type="text" id="foundContact" placeholder="Contact Info" required />
+      <button type="submit">Submit Found</button>
+    </form>
+  </section>
+
+  <div id="toast"></div>
+
+  <!-- Modal for Do's and Don'ts -->
+  <div id="disasterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="disasterTitle"></h2>
+      <h3>✅ Do's</h3><ul id="disasterDos"></ul>
+      <h3>❌ Don'ts</h3><ul id="disasterDonts"></ul>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+    const db = createClient("https://knjsdmknmwfvfjimpllf.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtuanNkbWtubXdmdmZqaW1wbGxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NTAwNjYsImV4cCI6MjA3NjIyNjA2Nn0.A0HrKTFpqcFQVkMScI8GwqgPueomRR-tRO0ykEsYoKo");
+
+    // Show Toast
+    function showToast(msg, color) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.style.background = color;
+      t.className = "show";
+      setTimeout(() => (t.className = t.className.replace("show", "")), 3000);
+    }
+
+    // Submit Help Request
+    const helpForm = document.getElementById("helpForm");
+    helpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = name.value, location = location.value, need = need.value, priority = priority.value;
+      const { error } = await db.from("relief_requests").insert([{ name, location, need, priority, status: "Pending" }]);
+      if (error) showToast("❌ Failed to submit request!", "red");
+      else { showToast("✅ Request submitted successfully!", "green"); loadRequests(); }
+      helpForm.reset();
+    });
+
+    // Load requests
+    async function loadRequests() {
+      const { data, error } = await db.from("relief_requests").select("*").order("id");
+      const table = document.getElementById("requestTable");
+      if (error || !data.length) {
+        table.innerHTML = "<tr><th>ID</th><th>Name</th><th>Location</th><th>Need</th><th>Priority</th><th>Status</th></tr><tr><td colspan='6'>No requests yet.</td></tr>";
+        return;
+      }
+      table.innerHTML = "<tr><th>ID</th><th>Name</th><th>Location</th><th>Need</th><th>Priority</th><th>Status</th></tr>" +
+        data.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.location}</td><td>${r.need}</td><td>${r.priority}</td><td>${r.status}</td></tr>`).join("");
+    }
+    loadRequests();
+
+    // Lost & Found
+    const lostForm = document.getElementById("lostForm"), foundForm = document.getElementById("foundForm");
+    lostForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const desc = lostDesc.value, loc = lostLoc.value, date = lostDate.value, contact = lostContact.value;
+      const { error } = await db.from("lost_found").insert([{ type: "Lost", description: desc, location: loc, date, contact, status: "Searching" }]);
+      if (error) showToast("❌ Failed to submit Lost!", "red");
+      else { showToast("🔴 Lost Report Added!", "orange"); loadLost(); }
+      lostForm.reset();
+    });
+    foundForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const desc = foundDesc.value, loc = foundLoc.value, date = foundDate.value, contact = foundContact.value;
+      const { error } = await db.from("lost_found").insert([{ type: "Found", description: desc, location: loc, date, contact, status: "Waiting for Match" }]);
+      if (error) showToast("❌ Failed to submit Found!", "red");
+      else { showToast("🟢 Found Report Added!", "green"); loadLost(); }
+      foundForm.reset();
+    });
+    async function loadLost() {
+      const { data } = await db.from("lost_found").select("*").order("id");
+      document.getElementById("lfTable").innerHTML =
+        "<tr><th>ID</th><th>Type</th><th>Description</th><th>Location</th><th>Date</th><th>Contact</th><th>Status</th></tr>" +
+        data.map(r => `<tr><td>${r.id}</td><td>${r.type}</td><td>${r.description}</td><td>${r.location}</td><td>${r.date}</td><td>${r.contact}</td><td>${r.status}</td></tr>`).join("");
+    }
+    loadLost();
+
+    // Google Map
+    window.initMap = function () {
+      const map = new google.maps.Map(document.getElementById("map"), { zoom: 6, center: { lat: 17.385, lng: 78.4867 } });
+      db.from("relief_requests").select("*").then(({ data }) => {
+        if (!data) return;
+        const colors = { Critical: "red", High: "orange", Medium: "yellow", Low: "green" };
+        data.forEach(r => {
+          new google.maps.Marker({
+            position: { lat: 17.385 + Math.random(), lng: 78.4867 + Math.random() },
+            map,
+            icon: `http://maps.google.com/mapfiles/ms/icons/${colors[r.priority]}-dot.png`,
+            title: `${r.location} (${r.priority})`
+          });
+        });
+      });
+    };
+
+    // Do’s & Don’ts
+    const disasterInfo = {
+      Cyclone: {
+        dos: ["Stay indoors and away from windows", "Keep your emergency kit ready with essentials", "Charge phones and power banks", "Follow evacuation orders"],
+        donts: ["Do not go outside during high winds", "Avoid standing near glass or trees"]
+      },
+      Flood: {
+        dos: ["Move to higher ground immediately", "Switch off electricity", "Store clean drinking water", "Help others evacuate safely"],
+        donts: ["Do not walk in flood water", "Do not touch electrical wires"]
+      },
+      Earthquake: {
+        dos: ["Drop, Cover, Hold On", "Stay away from windows", "Move to open space after tremor"],
+        donts: ["Do not use elevators", "Do not run outside during shaking"]
+      },
+      Tsunami: {
+        dos: ["Move to high ground", "Follow alerts", "Keep emergency supplies ready"],
+        donts: ["Do not go to the shore", "Do not return until declared safe"]
+      },
+      Rainfall: {
+        dos: ["Carry umbrella", "Avoid flooded roads", "Stay alert"],
+        donts: ["Do not touch poles", "Do not ignore warnings"]
+      },
+      Landslide: {
+        dos: ["Stay away from slopes", "Be alert to unusual ground sounds", "Move to safe ground"],
+        donts: ["Do not ignore warning signs", "Do not build near unstable slopes"]
+      },
+      Wildfire: {
+        dos: ["Evacuate early", "Wear mask", "Keep water ready"],
+        donts: ["Do not burn waste", "Avoid smoke areas"]
+      },
+      Drought: {
+        dos: ["Save and reuse water", "Report leaks", "Plant drought-resistant crops"],
+        donts: ["Do not waste water", "Do not burn vegetation"]
+      }
+    };
+
+    window.openModal = function (type) {
+      document.getElementById("disasterModal").style.display = "block";
+      document.getElementById("disasterTitle").innerText = type + " - Safety Guidelines";
+      document.getElementById("disasterDos").innerHTML = disasterInfo[type].dos.map(d => `<li>${d}</li>`).join("");
+      document.getElementById("disasterDonts").innerHTML = disasterInfo[type].donts.map(d => `<li>${d}</li>`).join("");
+    };
+
+    window.closeModal = function () {
+      document.getElementById("disasterModal").style.display = "none";
+    };
+  </script>
+</body>
+</html>
